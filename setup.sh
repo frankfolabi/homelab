@@ -1,70 +1,46 @@
-# Setup a virtual environment.
-# On Ubuntu Linux install virtual environment
-sudo apt install python3.12-venv
+#!/bin/bash
 
-# Create a venv 
-source ll_env/bin/activate
+# This script is to automate the setup of the virtual environment needed to run
+# the Learning Log app on Ubuntu. 
 
-# To deactivate the virtual environment
-# deactivate
+# Check if python3-venv is installed
+echo -e "[*] Checking if python3-venv is installed..."
+if dpkg -l | grep -q '^ii\s\+python3-venv\s'; then
+    echo "python3-venv is already installed."
+else
+    echo "python3-venv is not installed. Installing..."
+    sudo apt update && sudo apt install -y python3-venv || exit 1
+fi
+
+# Create the virtual environment called ll_env
+echo -e "[*] Creating virtual environment..."
+python3 -m venv ll_env
+
+echo -e "[*] Created the virtual environment..."
+
+(
+  echo "This is inside a subshell"
+  
+  # Activate the virtual environment (only inside this subshell)
+  source ll_env/bin/activate
+
+  # Upgrade pip and install dependencies
+echo -e "[*] Installing Python packages..."
+pip install --upgrade pip
+pip install django django-bootstrap5
+
 
 # Installing Django
-pip install --upgrade pip
-pip install django
+if [ -f "manage.py" ]; then
+    echo -e "[✓] Starting Django development server..."
+    python manage.py runserver
+else
+    echo -e "[✗] manage.py not found in current directory. Skipping runserver."
+fi
 
-# Create a Django project
-django-admin startproject ll_project .
-# The following files and directory would be created in the current directory.
-# ll_project/{__init__.py, asgi.py, settings.py, wsgi.py}
-# manage.py
 
-# Create the database
-python manage.py migrate
+# To deactivate the virtual environment
+echo -e "[i] To deactivate the virtual environment, run: deactivate"
+# deactivate
 
-# View the project
-python manage.py runserver
-
-# Start an app
-python manage.py startapp learning_logs
-
-# Define Models
-# create a class Topic
-#
-# Activate Models
-#
-# Modify Database to store Models
-python manage.py makemigrations learning_logs
-
-# Modify Database 
-python manage.py migrate
-
-# Create Admin (superuser)
-python manage.py createsuperuser
-
-# Enter the username, email and password
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
+)
